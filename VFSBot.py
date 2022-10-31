@@ -2,7 +2,6 @@ import time
 import threading
 from utils import *
 from selenium import webdriver
-#from selenium_stealth import stealth
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -108,14 +107,6 @@ class VFSBot:
         self.browser = uc.Chrome(options=self.options, 
                  executable_path=r'chromedriver')
         
-       # stealth(self.browser,
-       #         languages=["en-US", "en"],
-       #         vendor="Google Inc.",
-       #         platform="MacIntel",
-       #         webgl_vendor="Intel Inc.",
-       #         renderer="Intel Iris OpenGL Engine",
-       #         fix_hairline=True)
-    
     def help(self, update, context):
         update.message.reply_text("This is a VFS appointment bot!\nPress /start to begin.")
 
