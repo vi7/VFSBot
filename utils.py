@@ -4,7 +4,7 @@ import pytesseract
 import telegram
 from telegram.ext import Handler
 
-pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = 'tesseract'
 
 class WebError(Exception):
     pass

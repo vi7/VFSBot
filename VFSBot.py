@@ -2,7 +2,7 @@ import time
 import threading
 from utils import *
 from selenium import webdriver
-from selenium_stealth import stealth
+#from selenium_stealth import stealth
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from telegram.ext.updater import Updater
 from telegram.ext.commandhandler import CommandHandler
 from configparser import ConfigParser
+import undetected_chromedriver as uc
 
 class VFSBot:
     def __init__(self):
@@ -28,8 +29,8 @@ class VFSBot:
 
         self.options = webdriver.ChromeOptions()
         self.options.add_argument("start-maximized")
-        self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        self.options.add_experimental_option('useAutomationExtension', False)
+        #self.options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        #self.options.add_experimental_option('useAutomationExtension', False)
         
         dp = updater.dispatcher
 
@@ -104,16 +105,16 @@ class VFSBot:
                 continue
                 
     def open_browser(self):
-        self.browser = webdriver.Chrome(options=self.options, 
-                 executable_path=r'chromedriver.exe')
+        self.browser = uc.Chrome(options=self.options, 
+                 executable_path=r'chromedriver')
         
-        stealth(self.browser,
-                languages=["en-US", "en"],
-                vendor="Google Inc.",
-                platform="Win32",
-                webgl_vendor="Intel Inc.",
-                renderer="Intel Iris OpenGL Engine",
-                fix_hairline=True)
+       # stealth(self.browser,
+       #         languages=["en-US", "en"],
+       #         vendor="Google Inc.",
+       #         platform="MacIntel",
+       #         webgl_vendor="Intel Inc.",
+       #         renderer="Intel Iris OpenGL Engine",
+       #         fix_hairline=True)
     
     def help(self, update, context):
         update.message.reply_text("This is a VFS appointment bot!\nPress /start to begin.")
