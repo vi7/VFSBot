@@ -1,8 +1,12 @@
 
- # VFS Appointment Bot
-This python script automatically checks the available VFS appointments and notifies the earliest opening via Telegram.
+VFS Appointment Bot
+===================
 
-## How to use
+Telegram bot which automatically checks the available VFS appointments and notifies about the earliest openings.
+
+How to use
+----------
+
 1. Clone the repo.
 2. Enable virtualenv: `virtualenv venv`
 3. Install the dependencies: `pip install -r requirements.txt`
@@ -14,8 +18,10 @@ This python script automatically checks the available VFS appointments and notif
 9. Create and update the `config.ini` file with your VFS URL, account info, telegram token, and ids.
 10. Run the script!
 
-## Description
-This script was initially made for the BY visa center. However, it can also be used for other centers around the world. You might have to change the XPATH (available through inspect element) addresses in the check_appointment() function to your desired values.
+Description
+-----------
+
+This script was initially made for the BY visa center. However, it can also be used for other centers around the world. You might have to change the XPATH (available through inspect element) addresses in the `check_appointment()` function to your desired values.
 
 ### Telegram
 The created bot should have two default commands:

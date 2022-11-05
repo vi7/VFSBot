@@ -1,7 +1,4 @@
 import threading
-import pydub
-import urllib
-import os
 from time import sleep
 from random import randint
 from utils import *
@@ -10,12 +7,10 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 from telegram.ext.updater import Updater
 from telegram.ext.commandhandler import CommandHandler
 from configparser import ConfigParser
 import undetected_chromedriver as uc
-from speech_recognition import Recognizer, AudioFile
 
 class VFSBot:
     def __init__(self):
@@ -58,16 +53,19 @@ class VFSBot:
         self.browser.find_element(by=By.NAME, value='EmailId').send_keys(self.email_str)
         self.browser.find_element(by=By.NAME, value='Password').send_keys(self.pwd_str)
 
+        # TODO: remove old captcha handling after new one is tested
+        # captcha_img = self.browser.find_element(by=By.ID, value='CaptchaImage')
 
-        captcha_img = self.browser.find_element(by=By.ID, value='CaptchaImage')
+        # self.captcha_filename = 'captcha.png'
+        # with open(self.captcha_filename, 'wb') as file:
+        #     file.write(captcha_img.screenshot_as_png)
 
-        self.captcha_filename = 'captcha.png'
-        with open(self.captcha_filename, 'wb') as file:
-            file.write(captcha_img.screenshot_as_png)
+        # captcha = break_captcha()
 
-        captcha = break_captcha()
+        # self.browser.find_element(by=By.NAME, value='CaptchaInputText').send_keys(captcha)
 
-        self.browser.find_element(by=By.NAME, value='CaptchaInputText').send_keys(captcha)
+        resolve_captcha(self.browser)
+
         time.sleep(randint(1, 3))
         self.browser.find_element(by=By.ID, value='btnSubmit').click()
 
@@ -100,13 +98,15 @@ class VFSBot:
 
 
     def login_helper(self, update, context):
-        while True:
-            try:
-                self.login(update, context)
-            except:
-                self.browser.quit()
-                self.open_browser()
-                continue
+        self.login(update, context)
+        # TODO: fix and enable automatic browser reopening
+        # while True:
+        #     try:
+        #         self.login(update, context)
+        #     except:
+        #         self.browser.quit()
+        #         self.open_browser()
+        #         continue
 
     def open_browser(self):
         self.browser = uc.Chrome(options=self.options,
