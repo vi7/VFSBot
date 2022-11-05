@@ -2,13 +2,14 @@
 interval = 600
 
 [VFS]
-url = https://row2.vfsglobal.com/PolandBelarus-Appointment/Account/RegisteredLogin?q=shSA0YnE4pLF9Xzwon/x/ASnHZRMROGDyz5YljrTPrmD7weWKDzHm/9+x4kyou3T7EbygDK+7ECJT8O+dWpxGw== 
-#url = https://nowsecure.nl 
-#url = https://bot.sannysoft.com/ 
-email = 
+url = https://row2.vfsglobal.com/PolandBelarus-Appointment/Account/RegisteredLogin?q=shSA0YnE4pLF9Xzwon/x/ASnHZRMROGDyz5YljrTPrmD7weWKDzHm/9+x4kyou3T7EbygDK+7ECJT8O+dWpxGw==
+#url = https://nowsecure.nl
+#url = https://bot.sannysoft.com/
+#url = https://www.google.com/recaptcha/api2/demo
+email =
 password =
 
 [TELEGRAM]
-auth_token = XXXXXXXXXX:YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY 
+auth_token = XXXXXXXXXX:YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
 channel_id = -1234567891011
 admin_ids = 123456789
