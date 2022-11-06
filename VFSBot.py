@@ -1,5 +1,5 @@
+import time
 import threading
-from time import sleep
 from random import randint
 from utils import *
 from selenium import webdriver
@@ -53,23 +53,12 @@ class VFSBot:
         self.browser.find_element(by=By.NAME, value='EmailId').send_keys(self.email_str)
         self.browser.find_element(by=By.NAME, value='Password').send_keys(self.pwd_str)
 
-        # TODO: remove old captcha handling after new one is tested
-        # captcha_img = self.browser.find_element(by=By.ID, value='CaptchaImage')
-
-        # self.captcha_filename = 'captcha.png'
-        # with open(self.captcha_filename, 'wb') as file:
-        #     file.write(captcha_img.screenshot_as_png)
-
-        # captcha = break_captcha()
-
-        # self.browser.find_element(by=By.NAME, value='CaptchaInputText').send_keys(captcha)
-
         resolve_captcha(self.browser)
 
         time.sleep(randint(1, 3))
         self.browser.find_element(by=By.ID, value='btnSubmit').click()
 
-        if "Reschedule Appointment" in self.browser.page_source:
+        if "Schedule Appointment" in self.browser.page_source:
             update.message.reply_text("Successfully logged in!")
             while True:
                 try:
