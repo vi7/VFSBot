@@ -141,7 +141,7 @@ class VFSBot:
             return True
 
     def check_appointment(self, update, context):
-        time.sleep(randint(3, 6))
+        time.sleep(randint(1, 3))
 
         self.browser.find_element(by=By.XPATH,
                                 value='//*[@id="Accordion1"]/div/div[2]/div/ul/li[1]/a').click()
@@ -158,47 +158,61 @@ class VFSBot:
              raise WebError
         time.sleep(randint(3, 6))
 
-
-        self.browser.find_element(by=By.XPATH, value='//*[@id="LocationId"]/option[2]').click()
+        # Option 7 for Minsk
+        self.browser.find_element(by=By.XPATH, value='//*[@id="LocationId"]/option[7]').click()
         if self.check_errors():
             raise WebError
-
         time.sleep(randint(3, 6))
 
+        if "There are no open seats available for selected center - Poland Visa Application Center-Minsk" in self.browser.page_source:
 
-        if "There are no open seats available for selected center - Belgium Long Term Visa Application Center-Tehran" in self.browser.page_source:
-            #update.message.reply_text("There are no appointments available.")
             records = open("record.txt", "r+")
             last_date = records.readlines()[-1]
 
             if last_date != '0':
                 context.bot.send_message(chat_id=self.channel_id,
-                                         text="There are no appointments available right now.")
+                                         text="There are no appointments for city available right now.")
                 records.write('\n' + '0')
                 records.close
             return True
 
         else:
             select = Select(self.browser.find_element(by=By.XPATH, value='//*[@id="VisaCategoryId"]'))
-            select.select_by_value('1314')
+            # value 301 - Schengen C-visa
+            select.select_by_value('301')
+            time.sleep(randint(3, 6))
 
-            WebDriverWait(self.browser, 100).until(EC.presence_of_element_located((
+            # todo check msg
+            if "There are no open seats available for selected center - Poland Visa Application Center-Minsk" in self.browser.page_source:
+                
+                records = open("record.txt", "r+")
+                last_date = records.readlines()[-1]
+
+                if last_date != '0':
+                    context.bot.send_message(chat_id=self.channel_id,
+                                         text="There are no appointments for visa type available right now.")
+                    records.write('\n' + '0')
+                    records.close
+                return True
+
+            else: 
+
+                WebDriverWait(self.browser, 100).until(EC.presence_of_element_located((
                 By.XPATH, '//*[@id="dvEarliestDateLnk"]')))
 
-            time.sleep(randint(2, 4))
-            new_date = self.browser.find_element(by=By.XPATH,
+                time.sleep(randint(2, 4))
+                new_date = self.browser.find_element(by=By.XPATH,
                            value='//*[@id="lblDate"]').get_attribute('innerHTML')
 
-            records = open("record.txt", "r+")
-            last_date = records.readlines()[-1]
+                records = open("record.txt", "r+")
+                last_date = records.readlines()[-1]
 
-            if new_date != last_date and len(new_date) > 0:
-                context.bot.send_message(chat_id=self.channel_id,
+                if new_date != last_date and len(new_date) > 0:
+                    context.bot.send_message(chat_id=self.channel_id,
                                          text=f"Appointment available on {new_date}.")
-                records.write('\n' + new_date)
-                records.close()
-            #update.message.reply_text("Checked!", disable_notification=True)
-            return True
+                    records.write('\n' + new_date)
+                    records.close()
+                return True
 
 
 if __name__ == '__main__':
