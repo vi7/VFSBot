@@ -29,9 +29,6 @@ class VFSBot:
 
         updater = Updater(token, use_context=True)
 
-        self.options = webdriver.ChromeOptions()
-        self.options.add_argument("start-maximized")
-
         dp = updater.dispatcher
 
         dp.add_handler(AdminHandler(admin_ids))
@@ -87,18 +84,19 @@ class VFSBot:
 
 
     def login_helper(self, update, context):
-        self.login(update, context)
-        # TODO: fix and enable automatic browser reopening
-        # while True:
-        #     try:
-        #         self.login(update, context)
-        #     except:
-        #         self.browser.quit()
-        #         self.open_browser()
-        #         continue
+        while True:
+            try:
+                self.open_browser()
+                self.login(update, context)
+            except:
+                self.browser.quit()
+                self.open_browser()
+                continue
 
     def open_browser(self):
-        self.browser = uc.Chrome(options=self.options,
+        options = webdriver.ChromeOptions()
+        options.add_argument("start-maximized")
+        self.browser = uc.Chrome(options=options,
                  executable_path=r'chromedriver')
 
     def help(self, update, context):
@@ -108,9 +106,8 @@ class VFSBot:
         try:
             self.browser.close()
         except:
-                pass
+            pass
         update.message.reply_text('Logging in...')
-        self.open_browser()
 
         self.thr = threading.Thread(target=self.login_helper, args=(update, context))
         self.thr.start()
@@ -119,10 +116,14 @@ class VFSBot:
     def quit(self, update, context):
         try:
             self.browser.quit()
+            # TODO: implement thread killing, there is no terminate() method
             self.thr.terminate()
-        except:
+        except Exception as err:
+            print(f"The following error occured while quitting {err=}, {type(err)=}")
+            update.message.reply_text("Unexpected error while quitting!")
             pass
-        update.message.reply_text("Quit successfully.")
+        else:
+            update.message.reply_text("Quit successfully.")
 
     def check_errors(self):
         if "Server Error in '/Global-Appointment' Application." in self.browser.page_source:
