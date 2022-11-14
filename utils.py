@@ -44,7 +44,7 @@ def resolve_captcha(driver):
     captcha_audio_lang = 'en-GB'
 
     print('Waiting for captcha iframe')
-    WebDriverWait(driver, 600).until(
+    WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.XPATH, captcha_xpath))
     )
     frame = driver.find_element(By.XPATH, captcha_xpath)
@@ -76,7 +76,7 @@ def resolve_captcha(driver):
 
     try:
         src = driver.find_element(By.ID, 'audio-source').get_attribute("src")
-        print("Captcha url: {}".format(src))
+        # print("Captcha url: {}".format(src))
         urllib.request.urlretrieve(src, path+"\\audio.mp3")
 
         sound = pydub.AudioSegment.from_mp3(

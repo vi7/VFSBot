@@ -41,11 +41,19 @@ class VFSBot:
 
     def login(self, update, context):
         self.browser.get((self.url))
+        time.sleep(2)
+        queue_msg = False
 
-        if "You are now in line." in self.browser.page_source:
-           update.message.reply_text("You are now in queue.")
+        while True:
+            if "You are now in line." in self.browser.page_source:
+                if not queue_msg:
+                    update.message.reply_text("You are now in queue.")
+                    queue_msg = True
+                time.sleep(10)
+            else:
+                break
 
-        WebDriverWait(self.browser, 600).until(EC.presence_of_element_located((By.NAME, 'EmailId')))
+        WebDriverWait(self.browser, 60).until(EC.presence_of_element_located((By.NAME, 'EmailId')))
 
         self.browser.find_element(by=By.NAME, value='EmailId').send_keys(self.email_str)
         self.browser.find_element(by=By.NAME, value='Password').send_keys(self.pwd_str)
@@ -88,7 +96,8 @@ class VFSBot:
             try:
                 self.open_browser()
                 self.login(update, context)
-            except:
+            except Exception as e:
+                print("Login error happened:\n", str(e).split("\n")[0])
                 self.browser.quit()
                 self.open_browser()
                 continue
@@ -185,7 +194,7 @@ class VFSBot:
 
             # todo check msg
             if "There are no open seats available for selected center - Poland Visa Application Center-Minsk" in self.browser.page_source:
-                
+
                 records = open("record.txt", "r+")
                 last_date = records.readlines()[-1]
 
@@ -196,7 +205,7 @@ class VFSBot:
                     records.close
                 return True
 
-            else: 
+            else:
 
                 WebDriverWait(self.browser, 100).until(EC.presence_of_element_located((
                 By.XPATH, '//*[@id="dvEarliestDateLnk"]')))
