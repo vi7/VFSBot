@@ -24,6 +24,7 @@ class VFSBot:
         self.pwd_str = config.get('VFS', 'password')
         self.interval = config.getint('DEFAULT', 'interval')
         self.channel_id = config.get('TELEGRAM', 'channel_id')
+        self.quit_evt = threading.Event()
         token = config.get('TELEGRAM', 'auth_token')
         admin_ids = list(map(int, config.get('TELEGRAM', 'admin_ids').split(" ")))
 
@@ -42,13 +43,16 @@ class VFSBot:
     def login(self, update, context):
         self.browser.get((self.url))
         time.sleep(2)
-        queue_msg = False
+        queue_msg_sent = False
 
         while True:
-            if "You are now in line." in self.browser.page_source:
-                if not queue_msg:
+            if self.quit_evt.is_set():
+                return
+            # if "You are now in line." in self.browser.page_source:
+            if "Please note that improvements" in self.browser.page_source:
+                if not queue_msg_sent:
                     update.message.reply_text("You are now in queue.")
-                    queue_msg = True
+                    queue_msg_sent = True
                 time.sleep(10)
             else:
                 break
@@ -66,6 +70,8 @@ class VFSBot:
         if "Schedule Appointment" in self.browser.page_source:
             update.message.reply_text("Successfully logged in!")
             while True:
+                if self.quit_evt.is_set():
+                    return
                 try:
                     self.check_appointment(update, context)
                 except WebError:
@@ -93,11 +99,15 @@ class VFSBot:
 
     def login_helper(self, update, context):
         while True:
+            if self.quit_evt.is_set():
+                return
             try:
                 self.open_browser()
                 self.login(update, context)
             except Exception as e:
-                print("Login error happened:\n", str(e).split("\n")[0])
+                print("Login error happened:\n {}\nException type: {}\n\nRestarting session\n".format(
+                    str(e).split("\n")[0], type(e)
+                    ))
                 self.browser.quit()
                 self.open_browser()
                 continue
@@ -112,6 +122,7 @@ class VFSBot:
         update.message.reply_text("This is a VFS appointment bot!\nPress /start to begin.")
 
     def start(self, update, context):
+        self.quit_evt.clear()
         try:
             self.browser.close()
         except:
@@ -123,10 +134,9 @@ class VFSBot:
 
 
     def quit(self, update, context):
+        self.quit_evt.set()
         try:
             self.browser.quit()
-            # TODO: implement thread killing, there is no terminate() method
-            self.thr.terminate()
         except Exception as err:
             print(f"The following error occured while quitting {err=}, {type(err)=}")
             update.message.reply_text("Unexpected error while quitting!")
