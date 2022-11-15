@@ -16,17 +16,17 @@ class VFSBot:
     def __init__(self):
         path = os.path.abspath(os.getcwd())
 
-        config = ConfigParser()
-        config.read('config.ini')
+        self.config = ConfigParser()
+        self.config.read('config.ini')
 
-        self.url = config.get('VFS', 'url')
-        self.email_str = config.get('VFS', 'email')
-        self.pwd_str = config.get('VFS', 'password')
-        self.interval = config.getint('DEFAULT', 'interval')
-        self.channel_id = config.get('TELEGRAM', 'channel_id')
+        self.url = self.config.get('VFS', 'url')
+        self.email_str = self.config.get('VFS', 'email')
+        self.pwd_str = self.config.get('VFS', 'password')
+        self.interval = self.config.getint('DEFAULT', 'interval')
+        self.channel_id = self.config.get('TELEGRAM', 'channel_id')
         self.quit_evt = threading.Event()
-        token = config.get('TELEGRAM', 'auth_token')
-        admin_ids = list(map(int, config.get('TELEGRAM', 'admin_ids').split(" ")))
+        token = self.config.get('TELEGRAM', 'auth_token')
+        admin_ids = list(map(int, self.config.get('TELEGRAM', 'admin_ids').split(" ")))
 
         updater = Updater(token, use_context=True)
 
@@ -74,6 +74,7 @@ class VFSBot:
                     return
                 try:
                     self.check_appointment(update, context)
+                    self.process_user(update, context)
                 except WebError:
                     update.message.reply_text("An error has occured.\nTrying again.")
                     raise WebError
@@ -198,7 +199,7 @@ class VFSBot:
 
         else:
             select = Select(self.browser.find_element(by=By.XPATH, value='//*[@id="VisaCategoryId"]'))
-            # value 301 - Schengen C-visa
+            # value 301 - Schengen C-visa, value 2659 for indian Schengen visa
             select.select_by_value('301')
             time.sleep(randint(3, 6))
 
@@ -232,7 +233,43 @@ class VFSBot:
                                          text=f"Appointment available on {new_date}.")
                     records.write('\n' + new_date)
                     records.close()
+
+                time.sleep(randint(2, 4))
+                self.browser.find_element(by=By.ID, value='btnContinue').click()
+
                 return True
+
+    def process_user(self, update, context): 
+
+        WebDriverWait(self.browser, 4).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ApplicantListForm"]')))
+        update.message.reply_text("Trying to add customer..")
+
+        time.sleep(randint(2, 4))
+        self.browser.find_element(by=By.XPATH, value='/html/body/div[2]/div[1]/div[3]/div[3]/a').click()
+
+        WebDriverWait(self.browser, 4).until(EC.presence_of_element_located((By.ID, 'PassportNumber')))
+        time.sleep(randint(2, 4))
+
+        self.browser.find_element(by=By.ID, value='PassportNumber').send_keys(self.config.get('USER', 'passport_number'))
+        self.browser.find_element(by=By.ID, value='DateOfBirth').send_keys(self.config.get('USER', 'date_of_birth'))
+        self.browser.find_element(by=By.ID, value='PassportExpiryDate').send_keys(self.config.get('USER', 'passport_exp_date'))  
+        self.browser.find_element(by=By.XPATH, value='//*[@id="NationalityId"]/option[20]').click()    
+
+        self.browser.find_element(by=By.ID, value='FirstName').clear()
+        self.browser.find_element(by=By.ID, value='FirstName').send_keys(self.config.get('USER', 'first_name'))
+        self.browser.find_element(by=By.ID, value='LastName').clear()
+        self.browser.find_element(by=By.ID, value='LastName').send_keys(self.config.get('USER', 'last_name'))
+        self.browser.find_element(by=By.XPATH, value='//*[@id="GenderId"]/option[2]').click()    
+
+        self.browser.find_element(by=By.ID, value='Mobile').clear() 
+        self.browser.find_element(by=By.ID, value='Mobile').send_keys(self.config.get('USER', 'mobile_number')) 
+
+        self.browser.find_element(by=By.ID, value='validateEmailId').clear()
+        self.browser.find_element(by=By.ID, value='validateEmailId').send_keys(self.config.get('USER', 'email')) 
+
+        time.sleep(15)
+
+        # self.browser.find_element(by=By.ID, value='submitbuttonId').click()
 
 
 if __name__ == '__main__':
