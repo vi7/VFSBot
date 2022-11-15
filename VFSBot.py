@@ -11,6 +11,7 @@ from telegram.ext.updater import Updater
 from telegram.ext.commandhandler import CommandHandler
 from configparser import ConfigParser
 import undetected_chromedriver as uc
+from datetime import datetime
 
 class VFSBot:
     def __init__(self):
@@ -74,7 +75,6 @@ class VFSBot:
                     return
                 try:
                     self.check_appointment(update, context)
-                    self.process_user(update, context)
                 except WebError:
                     update.message.reply_text("An error has occured.\nTrying again.")
                     raise WebError
@@ -106,7 +106,7 @@ class VFSBot:
                 self.open_browser()
                 self.login(update, context)
             except Exception as e:
-                print("Login error happened:\n {}\nException type: {}\n\nRestarting session\n".format(
+                print("Error happened:\n {}\nException type: {}\n\nRestarting session\n".format(
                     str(e).split("\n")[0], type(e)
                     ))
                 self.browser.quit()
@@ -162,6 +162,7 @@ class VFSBot:
             return True
 
     def check_appointment(self, update, context):
+        print("{} Checking appointment.".format(datetime.now()))
         time.sleep(randint(1, 3))
 
         self.browser.find_element(by=By.XPATH,
@@ -236,6 +237,7 @@ class VFSBot:
 
                 time.sleep(randint(2, 4))
                 self.browser.find_element(by=By.ID, value='btnContinue').click()
+                self.process_user(update, context)
 
                 return True
 
