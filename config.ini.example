@@ -15,12 +15,12 @@ channel_id = -1234567891011
 admin_ids = 123456789
 
 [USER]
-passport_number = MP999999
+passport_number = MP9999999
 date_of_birth = 21/06/1962
 passport_exp_date = 22/10/2024
-first_name = Kristina
-last_name = Dmitrieva
-# mobile number prefix isn't used in processing
-mobile_number_prefix = 48
-mobile_number = 513572761
-email = kristin1kozlovskaya@gmail.com
+first_name = Ivan
+last_name = Ivanov
+; mobile number prefix isn't used in processing
+mobile_number_prefix = 375
+mobile_number = 291234567
+email = email@example.com
