@@ -49,6 +49,8 @@ class VFSBot:
         while True:
             if self.quit_evt.is_set():
                 return
+            print(self.browser.find_element(by=By.XPATH, value='//*').get_attribute("outerHTML"))  
+
             if "You are now in line." in self.browser.page_source:
                 if not queue_msg_sent:
                     update.message.reply_text("You are now in queue.")
@@ -67,35 +69,33 @@ class VFSBot:
         time.sleep(randint(1, 3))
         self.browser.find_element(by=By.ID, value='btnSubmit').click()
 
-        if "Schedule Appointment" in self.browser.page_source:
-            update.message.reply_text("Successfully logged in!")
-            while True:
-                if self.quit_evt.is_set():
-                    return
-                try:
-                    self.check_appointment(update, context)
-                except WebError as w:
-                    update.message.reply_text("WebError has occured.\nTrying again.")
-                    print(str(w))
-                    raise w
-                except Offline:
-                    update.message.reply_text("Downloaded offline version. Trying again.")
-                    continue
-                except Exception as e:
-                    update.message.reply_text("An error has occured. \nTrying again.")
-                    raise e
-                time.sleep(self.interval)
-        elif "Your account has been locked, please login after 2 minutes." in self.browser.page_source:
+
+        if "Your account has been locked, please login after 2 minutes." in self.browser.page_source:
            update.message.reply_text("Account locked.\nPlease wait 2 minutes.")
            time.sleep(randint(121, 125))
-           return
-        elif "The verification words are incorrect." in self.browser.page_source:
-           #update.message.reply_text("Incorrect captcha. \nTrying again.")
-           return
-        else:
-            update.message.reply_text("No Schedule Appointment button found.")
-            #self.browser.find_element(by=By.XPATH, value='//*[@id="logoutForm"]/a').click()
-            raise WebError
+           raise RuntimeError('Your account has been locked, please login after 2 minutes.')
+
+        WebDriverWait(self.browser, 180).until(EC.presence_of_element_located((
+            By.XPATH, '//*[@id="Accordion1"]/div/div[2]/div/ul/li[1]/a')))
+
+        update.message.reply_text("Successfully logged in!")
+        while True:
+            if self.quit_evt.is_set():
+                return
+            try:
+                self.check_appointment(update, context)
+            # TODO: get rid of WebError 
+            except WebError as w:
+                update.message.reply_text("WebError has occured.\nTrying again.")
+                print(str(w))
+                raise w
+            except Offline:
+                update.message.reply_text("Downloaded offline version. Trying again.")
+                continue
+            except Exception as e:
+                update.message.reply_text("An error has occured. \nTrying again.")
+                raise e
+            time.sleep(self.interval)
 
 
     def login_helper(self, update, context):
@@ -156,6 +156,9 @@ class VFSBot:
         elif "Session expired." in self.browser.page_source:
             raise ValueError.add_note("Session expired.")
 
+        # Gateway time-out Error code 504
+
+
     def check_offline(self):
         if "offline" in self.browser.page_source:
             return True
@@ -164,12 +167,7 @@ class VFSBot:
         print("{} Checking appointment.".format(datetime.now()))
         time.sleep(randint(1, 3))
 
-
-        WebDriverWait(self.browser, 180).until(EC.presence_of_element_located((
-            By.XPATH, '//*[@id="Accordion1"]/div/div[2]/div/ul/li[1]/a')))
-
         self.browser.find_element(by=By.XPATH, value='//*[@id="Accordion1"]/div/div[2]/div/ul/li[1]/a').click()
-
 
         WebDriverWait(self.browser, 100).until(EC.presence_of_element_located((
             By.XPATH, '//*[@id="LocationId"]')))
