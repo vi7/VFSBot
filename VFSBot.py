@@ -75,15 +75,16 @@ class VFSBot:
                     return
                 try:
                     self.check_appointment(update, context)
-                except WebError:
+                except WebError as w:
                     update.message.reply_text("An error has occured.\nTrying again.")
-                    raise WebError
+                    print(str(w))
+                    raise w
                 except Offline:
                     update.message.reply_text("Downloaded offline version. Trying again.")
-                    continue
-                except:
+                    continue    
+                except Exception as e:
                     update.message.reply_text("An error has occured. \nTrying again.")
-                    raise WebError
+                    raise e
                 time.sleep(self.interval)
         elif "Your account has been locked, please login after 2 minutes." in self.browser.page_source:
            update.message.reply_text("Account locked.\nPlease wait 2 minutes.")
@@ -93,7 +94,7 @@ class VFSBot:
            #update.message.reply_text("Incorrect captcha. \nTrying again.")
            return
         else:
-            update.message.reply_text("An error has occured. \nTrying again.")
+            update.message.reply_text("No Schedule Appointment button found.")
             #self.browser.find_element(by=By.XPATH, value='//*[@id="logoutForm"]/a').click()
             raise WebError
 
@@ -107,8 +108,9 @@ class VFSBot:
                 self.login(update, context)
             except Exception as e:
                 print("Error happened:\n {}\nException type: {}\n\nRestarting session\n".format(
-                    str(e).split("\n")[0], type(e)
+                    str(e), type(e)
                     ))
+                time.sleep(randint(1, 3))    
                 self.browser.quit()
                 self.open_browser()
                 continue
@@ -147,15 +149,13 @@ class VFSBot:
 
     def check_errors(self):
         if "Server Error in '/Global-Appointment' Application." in self.browser.page_source:
-            return True
+            raise ValueError("Server Error in '/Global-Appointment' Application.")
         elif "Cloudflare" in self.browser.page_source:
-            return True
+            raise ValueError("Cloudflare")
         elif "Sorry, looks like you were going too fast." in self.browser.page_source:
-            return True
+            raise ValueError("Sorry, looks like you were going too fast.")
         elif "Session expired." in self.browser.page_source:
-            return True
-        elif "Sorry, looks like you were going too fast." in self.browser.page_source:
-            return True
+            raise ValueError.add_note("Session expired.")
 
     def check_offline(self):
         if "offline" in self.browser.page_source:
@@ -167,10 +167,6 @@ class VFSBot:
 
         self.browser.find_element(by=By.XPATH,
                                 value='//*[@id="Accordion1"]/div/div[2]/div/ul/li[1]/a').click()
-        if self.check_errors():
-            raise WebError
-        if self.check_offline():
-            raise Offline
 
         WebDriverWait(self.browser, 100).until(EC.presence_of_element_located((
             By.XPATH, '//*[@id="LocationId"]')))
