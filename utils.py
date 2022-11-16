@@ -44,7 +44,7 @@ def resolve_captcha(driver):
     captcha_audio_lang = 'en-GB'
 
     print('Waiting for captcha iframe')
-    WebDriverWait(driver, 300).until(
+    WebDriverWait(driver, 600).until(
         EC.presence_of_element_located((By.XPATH, captcha_xpath))
     )
     frame = driver.find_element(By.XPATH, captcha_xpath)
