@@ -58,7 +58,7 @@ class VFSBot:
             else:
                 break
 
-        WebDriverWait(self.browser, 60).until(EC.presence_of_element_located((By.NAME, 'EmailId')))
+        WebDriverWait(self.browser, 300).until(EC.presence_of_element_located((By.NAME, 'EmailId')))
 
         self.browser.find_element(by=By.NAME, value='EmailId').send_keys(self.email_str)
         self.browser.find_element(by=By.NAME, value='Password').send_keys(self.pwd_str)
@@ -76,12 +76,12 @@ class VFSBot:
                 try:
                     self.check_appointment(update, context)
                 except WebError as w:
-                    update.message.reply_text("An error has occured.\nTrying again.")
+                    update.message.reply_text("WebError has occured.\nTrying again.")
                     print(str(w))
                     raise w
                 except Offline:
                     update.message.reply_text("Downloaded offline version. Trying again.")
-                    continue    
+                    continue
                 except Exception as e:
                     update.message.reply_text("An error has occured. \nTrying again.")
                     raise e
@@ -110,14 +110,14 @@ class VFSBot:
                 print("Error happened:\n {}\nException type: {}\n\nRestarting session\n".format(
                     str(e), type(e)
                     ))
-                time.sleep(randint(1, 3))    
+                time.sleep(randint(1, 3))
                 self.browser.quit()
                 self.open_browser()
                 continue
 
     def open_browser(self):
         options = webdriver.ChromeOptions()
-        options.add_argument("start-maximized")
+        # options.add_argument("start-maximized")
         self.browser = uc.Chrome(options=options,
                  executable_path=r'chromedriver')
 
@@ -172,14 +172,14 @@ class VFSBot:
             By.XPATH, '//*[@id="LocationId"]')))
 
         self.browser.find_element(by=By.XPATH, value='//*[@id="LocationId"]').click()
-        if self.check_errors():
-             raise WebError
+        # if self.check_errors():
+        #      raise WebError
         time.sleep(randint(3, 6))
 
         # Option 7 for Minsk
         self.browser.find_element(by=By.XPATH, value='//*[@id="LocationId"]/option[7]').click()
-        if self.check_errors():
-            raise WebError
+        # if self.check_errors():
+        #     raise WebError
         time.sleep(randint(3, 6))
 
         if "There are no open seats available for selected center - Poland Visa Application Center-Minsk" in self.browser.page_source:
@@ -237,7 +237,7 @@ class VFSBot:
 
                 return True
 
-    def process_user(self, update, context): 
+    def process_user(self, update, context):
 
         WebDriverWait(self.browser, 4).until(EC.presence_of_element_located((By.XPATH, '//*[@id="ApplicantListForm"]')))
         update.message.reply_text("Trying to add customer..")
@@ -250,20 +250,20 @@ class VFSBot:
 
         self.browser.find_element(by=By.ID, value='PassportNumber').send_keys(self.config.get('USER', 'passport_number'))
         self.browser.find_element(by=By.ID, value='DateOfBirth').send_keys(self.config.get('USER', 'date_of_birth'))
-        self.browser.find_element(by=By.ID, value='PassportExpiryDate').send_keys(self.config.get('USER', 'passport_exp_date'))  
-        self.browser.find_element(by=By.XPATH, value='//*[@id="NationalityId"]/option[20]').click()    
+        self.browser.find_element(by=By.ID, value='PassportExpiryDate').send_keys(self.config.get('USER', 'passport_exp_date'))
+        self.browser.find_element(by=By.XPATH, value='//*[@id="NationalityId"]/option[20]').click()
 
         self.browser.find_element(by=By.ID, value='FirstName').clear()
         self.browser.find_element(by=By.ID, value='FirstName').send_keys(self.config.get('USER', 'first_name'))
         self.browser.find_element(by=By.ID, value='LastName').clear()
         self.browser.find_element(by=By.ID, value='LastName').send_keys(self.config.get('USER', 'last_name'))
-        self.browser.find_element(by=By.XPATH, value='//*[@id="GenderId"]/option[2]').click()    
+        self.browser.find_element(by=By.XPATH, value='//*[@id="GenderId"]/option[2]').click()
 
-        self.browser.find_element(by=By.ID, value='Mobile').clear() 
-        self.browser.find_element(by=By.ID, value='Mobile').send_keys(self.config.get('USER', 'mobile_number')) 
+        self.browser.find_element(by=By.ID, value='Mobile').clear()
+        self.browser.find_element(by=By.ID, value='Mobile').send_keys(self.config.get('USER', 'mobile_number'))
 
         self.browser.find_element(by=By.ID, value='validateEmailId').clear()
-        self.browser.find_element(by=By.ID, value='validateEmailId').send_keys(self.config.get('USER', 'email')) 
+        self.browser.find_element(by=By.ID, value='validateEmailId').send_keys(self.config.get('USER', 'email'))
 
         time.sleep(15)
 
