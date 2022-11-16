@@ -164,8 +164,12 @@ class VFSBot:
         print("{} Checking appointment.".format(datetime.now()))
         time.sleep(randint(1, 3))
 
-        self.browser.find_element(by=By.XPATH,
-                                value='//*[@id="Accordion1"]/div/div[2]/div/ul/li[1]/a').click()
+
+        WebDriverWait(self.browser, 180).until(EC.presence_of_element_located((
+            By.XPATH, '//*[@id="Accordion1"]/div/div[2]/div/ul/li[1]/a')))
+
+        self.browser.find_element(by=By.XPATH, value='//*[@id="Accordion1"]/div/div[2]/div/ul/li[1]/a').click()
+
 
         WebDriverWait(self.browser, 100).until(EC.presence_of_element_located((
             By.XPATH, '//*[@id="LocationId"]')))
