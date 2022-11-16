@@ -49,8 +49,7 @@ class VFSBot:
         while True:
             if self.quit_evt.is_set():
                 return
-            # if "You are now in line." in self.browser.page_source:
-            if "Please note that improvements" in self.browser.page_source:
+            if "You are now in line." in self.browser.page_source:
                 if not queue_msg_sent:
                     update.message.reply_text("You are now in queue.")
                     queue_msg_sent = True
