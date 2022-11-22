@@ -49,7 +49,8 @@ class VFSBot:
         while True:
             if self.quit_evt.is_set():
                 return
-            print(self.browser.find_element(by=By.XPATH, value='//*').get_attribute("outerHTML"))  
+            # Print the page source
+            #print(self.browser.find_element(by=By.XPATH, value='//*').get_attribute("outerHTML"))  
 
             if "You are now in line." in self.browser.page_source:
                 if not queue_msg_sent:
