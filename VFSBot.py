@@ -42,15 +42,13 @@ class VFSBot:
         updater.idle()
 
     def login(self, update, context):
-        self.browser.get((self.url))
-        time.sleep(2)
         queue_msg_sent = False
 
         while True:
             if self.quit_evt.is_set():
                 return
             # Print the page source
-            #print(self.browser.find_element(by=By.XPATH, value='//*').get_attribute("outerHTML"))  
+            #print(self.browser.find_element(by=By.XPATH, value='//*').get_attribute("outerHTML"))
 
             if "You are now in line." in self.browser.page_source:
                 if not queue_msg_sent:
@@ -85,7 +83,7 @@ class VFSBot:
                 return
             try:
                 self.check_appointment(update, context)
-            # TODO: get rid of WebError 
+            # TODO: get rid of WebError
             except WebError as w:
                 update.message.reply_text("WebError has occured.\nTrying again.")
                 print(str(w))
@@ -107,12 +105,13 @@ class VFSBot:
                 self.open_browser()
                 self.login(update, context)
             except Exception as e:
-                print("Error happened:\n {}\nException type: {}\n\nRestarting session\n".format(
+                print("Error happened:\n {}\nException type: {}".format(
                     str(e), type(e)
                     ))
-                time.sleep(randint(1, 3))
+                print("\n\033[33mWe do not care. Restarting session..\033[0m")
                 self.browser.quit()
-                self.open_browser()
+                print("{}: Webdriver quit".format(datetime.now()))
+                time.sleep(randint(2, 4))
                 continue
 
     def open_browser(self):
@@ -120,6 +119,9 @@ class VFSBot:
         # options.add_argument("start-maximized")
         self.browser = uc.Chrome(options=options,
                  executable_path=r'chromedriver')
+        self.browser.get((self.url))
+        time.sleep(2)
+        print("{}: {} loaded".format(datetime.now(), self.url))
 
     def help(self, update, context):
         update.message.reply_text("This is a VFS appointment bot!\nPress /start to begin.")
@@ -127,7 +129,7 @@ class VFSBot:
     def start(self, update, context):
         self.quit_evt.clear()
         try:
-            self.browser.close()
+            self.browser.quit()
         except:
             pass
         update.message.reply_text('Logging in...')
@@ -137,9 +139,11 @@ class VFSBot:
 
 
     def quit(self, update, context):
+        print("{}: {} requested quit".format(datetime.now(), update.message.chat.first_name))
         self.quit_evt.set()
         try:
             self.browser.quit()
+            print("{}: Webdriver quit".format(datetime.now()))
         except Exception as err:
             print(f"The following error occured while quitting {err=}, {type(err)=}")
             update.message.reply_text("Unexpected error while quitting!")
@@ -273,4 +277,11 @@ class VFSBot:
 
 
 if __name__ == '__main__':
+    print("\n\n")
+    print("  ( \/ )( ___)/ __)(  _ \(  _  )(_  _)")
+    print("   \  /  )__) \__ \ ) _ < )(_)(   )(")
+    print("    \/  (__)  (___/(____/(_____) (__)")
+    print("\n\n")
+    print("{}: Bot started\n".format(datetime.now()))
+
     VFSbot = VFSBot()

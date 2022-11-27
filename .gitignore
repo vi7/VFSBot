@@ -2,4 +2,4 @@ venv/
 virtualenv/
 __pycache__/
 config.ini
-
+record.txt
